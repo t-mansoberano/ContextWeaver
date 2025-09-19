@@ -6,6 +6,23 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <ApplicationIcon>ContextWeaver.ico</ApplicationIcon>
+        <AssemblyName>ContextWeaver</AssemblyName>
+
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>contextweaver</ToolCommandName>
+
+        <PackageId>ContextWeaver</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Jose Manuel Campos Soberano</Authors>
+        <Description>Una herramienta CLI para analizar repositorios de código .NET y generar un contexto consolidado, optimizado para LLMs.</Description>
+        <PackageTags>cli;dotnet;tool;llm;codegen;ai;context;prompt</PackageTags>
+
+        <PackageProjectUrl>https://github.com/t-mansoberano/ContextWeaver</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/t-mansoberano/ContextWeaver.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>ContextWeaver.png</PackageIcon>        
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,6 +35,16 @@
       <None Update="appsettings.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Update="ContextWeaver.ico">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="ContextWeaver.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="ContextWeaver.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>
