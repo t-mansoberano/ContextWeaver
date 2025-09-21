@@ -1,11 +1,9 @@
-﻿// Importaciones necesarias. En un proyecto con "ImplicitUsings", muchas de estas
-// ya estarían disponibles automáticamente, pero las explicitamos por claridad y robustez.
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration; // Para IConfiguration y GetSection
 using Microsoft.Extensions.Options;       // Para IOptions
 using System.CommandLine;                 // Para la línea de comandos
-using ContextWeaver;                      // Importar el namespace de tu aplicación (cambia 'CodeExtractor' por 'ContextWeaver')
+using ContextWeaver;
 
 
 // ARQUITECTURA: Top-Level Statements.
@@ -19,8 +17,11 @@ var rootCommand = new RootCommand("Herramienta de análisis y extracción de có
 
 var directoryOption = new Option<DirectoryInfo>(
     aliases: new[] { "-d", "--directorio" },
-    description: "El directorio raíz del proyecto a analizar.")
-{ IsRequired = true };
+    // La función getDefaultValue se ejecuta si el usuario no provee este parámetro.
+    // "." es una forma universal de referirse al directorio actual.
+    getDefaultValue: () => new DirectoryInfo("."),
+    description: "El directorio raíz del proyecto a analizar. Por defecto, es el directorio actual.");
+// Ya no se necesita la propiedad { IsRequired = true }, porque ahora tiene un valor por defecto.
 
 var outputOption = new Option<FileInfo>(
     aliases: new[] { "-o", "--output" },

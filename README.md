@@ -33,4 +33,6 @@ dotnet tool install --global ContextWeaver
 
 # Uso
 contextweaver --directorio "C:\ruta\a\tu\repositorio" --output "reporte_contexto.md" --format "markdown"
+contextweaver --output "reporte_contexto.md" --format "markdown"
+contextweaver
 ```
