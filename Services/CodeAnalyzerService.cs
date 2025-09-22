@@ -1,6 +1,7 @@
-﻿using ContextWeaver.Core;
-using ContextWeaver.Interfaces;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using ContextWeaver.Core;
+using ContextWeaver.Interfaces;
 
 namespace ContextWeaver.Services;
 // Necesario para limpiar nombres de namespaces
@@ -12,7 +13,7 @@ namespace ContextWeaver.Services;
 /// </summary>
 public class CodeAnalyzerService
 {
-    private readonly AnalysisSettings _settings;
+    private readonly AnalysisSettings _defaultSettings;
     private readonly IEnumerable<IFileAnalyzer> _analyzers;
     private readonly IEnumerable<IReportGenerator> _generators;
 
@@ -26,11 +27,11 @@ public class CodeAnalyzerService
     /// implementaciones concretas. Esto es el corazón del BAJO ACOPLAMIENTO y la FLEXIBILIDAD.
     /// </summary>
     public CodeAnalyzerService(
-        IOptions<AnalysisSettings> settings,
+        IOptions<AnalysisSettings> defaultSettings,
         IEnumerable<IFileAnalyzer> analyzers,
         IEnumerable<IReportGenerator> generators)
     {
-        _settings = settings.Value;
+        _defaultSettings = defaultSettings.Value;
         _analyzers = analyzers;
         _generators = generators;
     }
@@ -53,11 +54,39 @@ public class CodeAnalyzerService
             return;
         }
 
+        // --- CARGA DE CONFIGURACIÓN ---
+        AnalysisSettings settings;
+        var localConfigPath = Path.Combine(directory.FullName, ".contextweaver.json");
+
+        if (File.Exists(localConfigPath))
+        {
+            Console.WriteLine("✅ Se encontró un archivo de configuración local '.contextweaver.json'. Usándolo para este análisis.");
+            try
+            {
+                var config = new ConfigurationBuilder()
+                    .AddJsonFile(localConfigPath)
+                    .Build();
+
+                settings = config.GetSection("AnalysisSettings").Get<AnalysisSettings>() ?? _defaultSettings;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"⚠️ Error al leer el archivo de configuración local: {ex.Message}. Se usará la configuración por defecto.");
+                settings = _defaultSettings;
+            }
+        }
+        else
+        {
+            settings = _defaultSettings;
+        }
+        // --- FIN ---
+
+
         var allFiles = directory.GetFiles("*.*", SearchOption.AllDirectories)
             // 1. Filtrar para EXCLUIR los directorios no deseados.
-            .Where(f => !_settings.ExcludePatterns.Any(p => f.FullName.Contains(Path.DirectorySeparatorChar + p + Path.DirectorySeparatorChar)))
-            // 2. CORRECCIÓN: Filtrar para INCLUIR solo las extensiones deseadas.
-            .Where(f => _settings.IncludedExtensions.Contains(f.Extension.ToLowerInvariant()))
+            .Where(f => !settings.ExcludePatterns.Any(p => f.FullName.Contains(Path.DirectorySeparatorChar + p + Path.DirectorySeparatorChar)))
+            // 2. Filtrar para INCLUIR solo las extensiones deseadas.
+            .Where(f => settings.IncludedExtensions.Contains(f.Extension.ToLowerInvariant()))
             .ToList();
 
         var analysisResults = new List<FileAnalysisResult>();
@@ -74,9 +103,9 @@ public class CodeAnalyzerService
             }
         }
         
-        // --- NUEVA LÓGICA: Calcular inestabilidad ---
+        // --- Calcular inestabilidad ---
         var instabilityMetrics = CalculateInstabilityMetrics(directory.Name, analysisResults);
-        // --- FIN NUEVA LÓGICA ---
+        // --- FIN ---
 
         // Pasamos las métricas de inestabilidad al generador de reportes
         var reportContent = generator.Generate(directory, analysisResults, instabilityMetrics); 

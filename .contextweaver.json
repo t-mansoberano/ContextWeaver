@@ -1,0 +1,10 @@
+﻿{
+  "AnalysisSettings": {
+    "IncludedExtensions": [
+      ".cs", ".csproj", ".sln", ".json"
+    ],
+    "ExcludePatterns": [
+      "bin", "obj", "node_modules", ".angular", ".vs", "dist", "wwwroot", "Publish", "packages", "Scripts", "Content"
+    ]
+  }
+}
