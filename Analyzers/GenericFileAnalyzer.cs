@@ -1,4 +1,7 @@
-﻿namespace ContextWeaver;
+﻿using ContextWeaver.Core;
+using ContextWeaver.Interfaces;
+
+namespace ContextWeaver.Analyzers;
 
 /// <summary>
 /// PATRÓN DE DISEÑO: Concrete Strategy (Estrategia Concreta).

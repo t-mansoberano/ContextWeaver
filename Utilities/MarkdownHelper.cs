@@ -1,6 +1,6 @@
-﻿namespace ContextWeaver;
+﻿using System.Text.RegularExpressions;
 
-using System.Text.RegularExpressions;
+namespace ContextWeaver.Utilities;
 
 /// <summary>
 /// BUENA PRÁCTICA: Clase de Utilidad Estática.

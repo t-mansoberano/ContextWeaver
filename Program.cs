@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration; // Para IConfiguration y GetSection
 using Microsoft.Extensions.Options;       // Para IOptions
 using System.CommandLine;                 // Para la línea de comandos
 using ContextWeaver;
+using ContextWeaver.Extensions;
+using ContextWeaver.Services;
 
 
 // ARQUITECTURA: Top-Level Statements.

@@ -1,8 +1,14 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using System.Text;
+using ContextWeaver.Core;
+using ContextWeaver.Interfaces;
+using ContextWeaver.Utilities;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Text;
-using ContextWeaver; // Agregado para construir cadenas
+
+// Agregado para construir cadenas
+
+namespace ContextWeaver.Analyzers;
 
 /// <summary>
 /// PATRÓN DE DISEÑO: Concrete Strategy (Estrategia Concreta).
@@ -95,8 +101,8 @@ public class CSharpFileAnalyzer : IFileAnalyzer
     private List<string> ExtractUsingStatements(SyntaxNode root)
     {
         return root.DescendantNodes().OfType<UsingDirectiveSyntax>()
-                   .Select(u => u.Name.ToString())
-                   .OrderBy(u => u)
-                   .ToList();
+            .Select(u => u.Name.ToString())
+            .OrderBy(u => u)
+            .ToList();
     }
 }

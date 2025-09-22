@@ -1,8 +1,8 @@
-﻿namespace ContextWeaver;
-
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace ContextWeaver.Utilities;
 
 /// <summary>
 /// BUENA PRÁCTICA: Clase de Utilidad Estática.

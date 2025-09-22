@@ -1,9 +1,13 @@
-﻿namespace ContextWeaver;
-
-using Microsoft.Extensions.Hosting;
+﻿using ContextWeaver.Analyzers;
+using ContextWeaver.Core;
+using ContextWeaver.Interfaces;
+using ContextWeaver.Reporters;
+using ContextWeaver.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using ContextWeaver; // Importar el namespace de tu aplicación (cambia 'CodeExtractor' por 'ContextWeaver')
+using Microsoft.Extensions.Hosting;
+
+namespace ContextWeaver.Extensions;
+// Importar el namespace de tu aplicación (cambia 'CodeExtractor' por 'ContextWeaver')
 
 // BUENA PRÁCTICA: Clases de Extensión.
 // Extender funcionalidades de clases existentes sin modificarlas.

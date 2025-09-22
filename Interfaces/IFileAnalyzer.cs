@@ -1,4 +1,6 @@
-﻿namespace ContextWeaver;
+﻿using ContextWeaver.Core;
+
+namespace ContextWeaver.Interfaces;
 
 /// <summary>
 /// PATRÓN DE DISEÑO: Strategy (Estrategia).

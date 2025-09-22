@@ -1,4 +1,4 @@
-﻿namespace ContextWeaver;
+﻿namespace ContextWeaver.Core;
 
 /// <summary>
 /// BUENA PRÁCTICA: Data Transfer Object (DTO).

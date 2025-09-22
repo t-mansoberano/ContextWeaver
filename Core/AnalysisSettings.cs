@@ -1,4 +1,4 @@
-﻿namespace ContextWeaver;
+﻿namespace ContextWeaver.Core;
 
 /// <summary>
 /// BUENA PRÁCTICA: Options Pattern.

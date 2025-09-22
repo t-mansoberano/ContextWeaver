@@ -1,7 +1,9 @@
-﻿namespace ContextWeaver;
-
+﻿using ContextWeaver.Core;
+using ContextWeaver.Interfaces;
 using Microsoft.Extensions.Options;
-using System.Text.RegularExpressions; // Necesario para limpiar nombres de namespaces
+
+namespace ContextWeaver.Services;
+// Necesario para limpiar nombres de namespaces
 
 /// <summary>
 /// PATRÓN DE DISEÑO: Context (en el patrón Strategy).
