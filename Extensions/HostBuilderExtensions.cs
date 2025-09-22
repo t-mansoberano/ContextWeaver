@@ -3,6 +3,7 @@ using ContextWeaver.Core;
 using ContextWeaver.Interfaces;
 using ContextWeaver.Reporters;
 using ContextWeaver.Services;
+using ContextWeaver.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -29,6 +30,8 @@ public static class HostBuilderExtensions
                 services.Configure<AnalysisSettings>(hostContext.Configuration.GetSection("AnalysisSettings"));
 
                 // PRINCIPIO DE DISEÑO: Inyección de Dependencias (DI).
+                services.AddSingleton<SettingsProvider>();
+                services.AddSingleton<InstabilityCalculator>();              
                 // Registramos el servicio principal de la aplicación.
                 services.AddSingleton<CodeAnalyzerService>();
 
