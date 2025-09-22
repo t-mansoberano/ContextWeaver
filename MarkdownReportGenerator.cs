@@ -29,39 +29,39 @@ public class MarkdownReportGenerator : IReportGenerator
     private string GenerateHeader(DirectoryInfo directory)
     {
         return $"""
-        This file is a merged representation of the codebase for '{directory.Name}', combined into a single document by ContextWeaver.
-        The content has been processed to create a comprehensive context for analysis.
+        Este archivo es una representación consolidada del código fuente de '{directory.Name}', fusionado en un único documento por ContextWeaver.
+        El contenido ha sido procesado para crear un contexto completo para su análisis.
 
-        # File Summary
+        # Resumen del Archivo
         
-        ## Purpose
-        This file contains a packed representation of the repository's contents.
-        It is designed to be easily consumable by AI systems for analysis, code review,
-        or other automated processes.
+        ## Propósito
+        Este archivo contiene una representación empaquetada de los contenidos del repositorio.
+        Está diseñado para ser fácilmente consumible por sistemas de IA para análisis, revisión de código u 
+        otros procesos automatizados.
         
-        ## File Format
-        The content is organized as follows:
-        1. This summary section
-        2. A "Hotspots" section identifying key files by metrics
-        3. An "Instability Analysis" section providing architectural insights
-        4. A directory structure tree with clickable links to each file
-        5. Multiple file entries, each consisting of:
-           a. A header with the file path (## File: path/to/file)
-           b. The "Repo Map" summary (public API and imports)
-           c. The full contents of the file in a code block
+        ## Formato del Archivo
+        El contenido se organiza de la siguiente manera:
+        1. Esta sección de resumen.
+        2. Una sección de "Hotspots" que identifica archivos clave por métricas.
+        3. Una sección de "Análisis de Inestabilidad" que proporciona información arquitectónica.
+        4. Un árbol de la estructura de directorios con enlaces clicables a cada archivo.
+        5. Múltiples entradas de archivo, cada una de las cuales consta de:
+           - Un encabezado con la ruta del archivo (## Archivo: ruta/al/archivo)
+           - El resumen del "Repo Map" (API pública e importaciones).
+           - El contenido completo del archivo en un bloque de código.
         
-        ## Usage Guidelines
-        - This file should be treated as read-only. Any changes should be made to the
-          original repository files, not this packed version.
-        - When processing this file, use the file path to distinguish
-          between different files in the repository.
-        - Be aware that this file may contain sensitive information. Handle it with
-          the same level of security as you would the original repository.
+        ## Pautas de Uso
+        - Este archivo debe ser tratado como de solo lectura. Cualquier cambio debe realizarse en 
+          los archivos originales del repositorio, no en esta versión empaquetada.
+        - Al procesar este archivo, use la ruta del archivo para distinguir entre los diferentes 
+          archivos del repositorio.
+        - Tenga en cuenta que este archivo puede contener información sensible. Manéjelo con el mismo 
+          nivel de seguridad que manejaría el repositorio original.
         
-        ## Notes
-        - Some files may have been excluded based on ContextWeaver's configuration in `appsettings.json`.
-        - Binary files are not included in this packed representation.
-        - Files are sorted alphabetically by their full path for consistent ordering.
+        ## Notas
+        - Algunos archivos pueden haber sido excluidos según la configuración de ContextWeaver en `appsettings.json`.
+        - Los archivos binarios no se incluyen en esta representación empaquetada.
+        - Los archivos se ordenan alfabéticamente por su ruta completa para una ordenación consistente.
         
         """;
     }
@@ -72,11 +72,11 @@ public class MarkdownReportGenerator : IReportGenerator
     private string GenerateHotspots(List<FileAnalysisResult> results)
     {
         var hotspotsBuilder = new StringBuilder();
-        hotspotsBuilder.AppendLine("# 🔥 Hotspots Analysis");
+        hotspotsBuilder.AppendLine("# 🔥 Análisis de Hotspots");
         hotspotsBuilder.AppendLine();
 
         // --- Top 5 por Líneas de Código (LOC) ---
-        hotspotsBuilder.AppendLine("## Top 5 Files by Lines of Code (LOC)");
+        hotspotsBuilder.AppendLine("## 5 Principales Archivos por Líneas de Código (LOC)");
         var topByLoc = results.OrderByDescending(r => r.LinesOfCode).Take(5);
         foreach (var result in topByLoc)
         {
@@ -87,7 +87,7 @@ public class MarkdownReportGenerator : IReportGenerator
         hotspotsBuilder.AppendLine();
 
         // --- Top 5 por Número de Imports ---
-        hotspotsBuilder.AppendLine("## Top 5 Files by Number of Imports");
+        hotspotsBuilder.AppendLine("## 5 Principales Archivos por Número de Importaciones");
         var topByImports = results
             .Select(r => new {
                 Result = r,
@@ -111,16 +111,16 @@ public class MarkdownReportGenerator : IReportGenerator
     private string GenerateInstabilityReport(Dictionary<string, (int Ca, int Ce, double Instability)> instabilityMetrics)
     {
         var reportBuilder = new StringBuilder();
-        reportBuilder.AppendLine("# 📊 Instability Analysis (Optional)");
+        reportBuilder.AppendLine("# 📊 Análisis de Inestabilidad");
         reportBuilder.AppendLine();
-        reportBuilder.AppendLine("This section estimates the Instability (I) metric for each top-level module (folder/project) based on its dependencies (imports).");
+        reportBuilder.AppendLine("Esta sección estima la métrica de Inestabilidad (I) para cada módulo de nivel superior (carpeta/proyecto) basándose en sus dependencias (importaciones).");
         reportBuilder.AppendLine("`I = Ce / (Ca + Ce)`");
-        reportBuilder.AppendLine("- `Ce` (Efferent): How many other modules this module *uses* (points outwards).");
-        reportBuilder.AppendLine("- `Ca` (Afferent): How many other modules *depend on* this module (point inwards).");
+        reportBuilder.AppendLine("- `Ce` (Eferente): Cuántos otros módulos usa este módulo (apunta hacia afuera).");
+        reportBuilder.AppendLine("- `Ca` (Aferente): Cuántos otros módulos dependen de este módulo (apunta hacia adentro).");
         reportBuilder.AppendLine();
-        reportBuilder.AppendLine("## Module Instability Overview:");
+        reportBuilder.AppendLine("## Resumen de Inestabilidad del Módulo:");
         reportBuilder.AppendLine();
-        reportBuilder.AppendLine("| Module | Ca (Afferent) | Ce (Efferent) | Instability (I) | Description |");
+        reportBuilder.AppendLine("| Módulo | Ca (Eferente) | Ce (Aferente) | Inestabilidad (I) | Descripción |");
         reportBuilder.AppendLine("|---|---|---|---|---|");
 
         foreach (var entry in instabilityMetrics.OrderBy(e => e.Key))
@@ -132,11 +132,11 @@ public class MarkdownReportGenerator : IReportGenerator
         }
         reportBuilder.AppendLine();
         
-        reportBuilder.AppendLine("## Interpretation Guide:");
-        reportBuilder.AppendLine("- `I ≈ 0`: Very stable (many depend on it; depends little on others). Often core contracts/interfaces.");
-        reportBuilder.AppendLine("- `I ≈ 1`: Very unstable (depends on many; few or none depend on it). Often concrete implementations like UI/adapters.");
-        reportBuilder.AppendLine("- `I ≈ 0.5`: Intermediate stability.");
-        reportBuilder.AppendLine("Ideally, stable modules should be abstract, and unstable modules concrete. Avoid highly abstract, unstable modules, or highly concrete, stable modules.");
+        reportBuilder.AppendLine("## Guía de Interpretación:");
+        reportBuilder.AppendLine("- `I ≈ 0`: Muy estable (muchos dependen de él; depende poco de otros). A menudo son contratos/interfaces principales.");
+        reportBuilder.AppendLine("- `I ≈ 1`: Muy inestable (depende de muchos; pocos o ninguno dependen de él). A menudo son implementaciones concretas como UI/adaptadores.");
+        reportBuilder.AppendLine("- `I ≈ 0.5`: Estabilidad intermedia.");
+        reportBuilder.AppendLine("Idealmente, los módulos estables deben ser abstractos y los inestables concretos. Evite módulos abstractos muy inestables o módulos concretos muy estables.");
         reportBuilder.AppendLine();
 
         return reportBuilder.ToString();
@@ -147,9 +147,9 @@ public class MarkdownReportGenerator : IReportGenerator
     /// </summary>
     private string GetInstabilityDescription(double instability)
     {
-        if (instability <= 0.2) return "Very Stable / Core";
-        if (instability >= 0.8) return "Very Unstable / Concrete";
-        return "Intermediate Stability";
+        if (instability <= 0.2) return "Muy estable / Core";
+        if (instability >= 0.8) return "Muy inestable / Concreto";
+        return "Estabilidad intermedia";
     }
 
     #region Directory Tree Generation
@@ -240,19 +240,19 @@ public class MarkdownReportGenerator : IReportGenerator
     private string GenerateFileContent(List<FileAnalysisResult> results)
     {
         var contentBuilder = new StringBuilder();
-        contentBuilder.AppendLine("# Files");
+        contentBuilder.AppendLine("# Archivos");
         contentBuilder.AppendLine();
 
         foreach (var result in results)
         {
-            contentBuilder.AppendLine($"## File: {result.RelativePath}");
+            contentBuilder.AppendLine($"## Archivo: {result.RelativePath}");
             contentBuilder.AppendLine();
             
             // --- NUEVA SECCIÓN DE REPO MAP ---
             if (result.Metrics.TryGetValue("PublicApiSignatures", out object? publicApiObj) && publicApiObj is List<string> publicApi)
             {
                 contentBuilder.AppendLine("### Repo Map: Extraer solo firmas públicas y imports de cada archivo");
-                contentBuilder.AppendLine("#### Public API:");
+                contentBuilder.AppendLine("#### API Publica:");
                 foreach (var signature in publicApi)
                 {
                     contentBuilder.AppendLine(signature);
@@ -272,8 +272,8 @@ public class MarkdownReportGenerator : IReportGenerator
             // --- FIN NUEVA SECCIÓN ---
 
             // Información de métricas existente
-            contentBuilder.AppendLine("#### Metrics");
-            contentBuilder.AppendLine($"* **Lines of Code (LOC):** {result.LinesOfCode}");
+            contentBuilder.AppendLine("#### Métricas");
+            contentBuilder.AppendLine($"* **Lineas de Código (LOC):** {result.LinesOfCode}");
             // Muestra otras métricas, excluyendo las que ya tratamos explícitamente como "Repo Map"
             foreach (var metric in result.Metrics.Where(m => m.Key != "PublicApiSignatures" && m.Key != "Usings"))
             {
