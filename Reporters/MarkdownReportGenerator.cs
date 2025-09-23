@@ -170,21 +170,18 @@ public class MarkdownReportGenerator : IReportGenerator
     /// </summary>
     private string GenerateDirectoryTree(List<FileAnalysisResult> results, string rootName)
     {
-        var treeBuilder = new StringBuilder();
-        treeBuilder.AppendLine("# Directory Structure");
-        treeBuilder.AppendLine();
+        var sb = new StringBuilder();
+        sb.AppendLine("# Directory Structure");
+        sb.AppendLine();
 
-        treeBuilder.AppendLine("<pre>"); // Envuelve el árbol en <pre> para respetar el indentado
-        
         var root = BuildTree(results);
-        treeBuilder.AppendLine($"/{rootName}/");
 
-        RenderNode(root, treeBuilder, "", true);
+        // Nodo raíz
+        sb.AppendLine($"- {rootName}/");
+        AppendDirectoryStructureWithLinks(root.Children.Values, sb, 1);
 
-        treeBuilder.AppendLine("</pre>"); // Cierra la etiqueta <pre>
-        
-        treeBuilder.AppendLine();
-        return treeBuilder.ToString();
+        sb.AppendLine();
+        return sb.ToString();
     }
 
     private TreeNode BuildTree(List<FileAnalysisResult> results)
@@ -212,30 +209,28 @@ public class MarkdownReportGenerator : IReportGenerator
         return root;
     }
     
-    private void RenderNode(TreeNode node, StringBuilder builder, string indent, bool isLast)
+    private void AppendDirectoryStructureWithLinks(IEnumerable<TreeNode> nodes, StringBuilder sb, int level)
     {
-        var children = node.Children.Values.ToList();
-        for (int i = 0; i < children.Count; i++)
-        {
-            var child = children[i];
-            bool isCurrentLast = (i == children.Count - 1);
-            
-            builder.Append(indent);
-            builder.Append(isCurrentLast ? "└── " : "├── ");
+        var indent = new string(' ', level * 4);
 
-            if (child.Path != null)
-            {
-                var headerText = $"File: {child.Path}";
-                var anchor = MarkdownHelper.CreateAnchor(headerText);
-                builder.AppendLine($"📄 [<a href=\"#{anchor}\">{child.Name}</a>]");
-            }
-            else
-            {
-                builder.AppendLine($"📁 {child.Name}/");
-                RenderNode(child, builder, indent + (isCurrentLast ? "    " : "│   "), isCurrentLast);
-            }
+        // Directorios primero, luego archivos; ambos ordenados por nombre
+        var directories = nodes.Where(n => n.Path == null).OrderBy(n => n.Name);
+        var files = nodes.Where(n => n.Path != null).OrderBy(n => n.Name);
+
+        foreach (var dir in directories)
+        {
+            sb.AppendLine($"{indent}- {dir.Name}/");
+            AppendDirectoryStructureWithLinks(dir.Children.Values, sb, level + 1);
+        }
+
+        foreach (var file in files)
+        {
+            var headerText = $"File: {file.Path}";
+            var anchor = MarkdownHelper.CreateAnchor(headerText);
+            sb.AppendLine($"{indent}- [{file.Name}](#{anchor})");
         }
     }
+
     #endregion
 
     /// <summary>
@@ -249,7 +244,7 @@ public class MarkdownReportGenerator : IReportGenerator
 
         foreach (var result in results)
         {
-            contentBuilder.AppendLine($"## Archivo: {result.RelativePath}");
+            contentBuilder.AppendLine($"## File: {result.RelativePath}");
             contentBuilder.AppendLine();
             
             // --- NUEVA SECCIÓN DE REPO MAP ---

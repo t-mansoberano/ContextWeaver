@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="AnalysisOf" xml:space="preserve">
+        <value>Este archivo es una representación consolidada del código fuente de '{0}', fusionado en un único documento por ContextWeaver.</value>
+    </data>
+    <data name="FileSummary" xml:space="preserve">
+        <value>Resumen del Archivo</value>
+    </data>
+    <data name="Purpose" xml:space="preserve">
+        <value>Propósito</value>
+    </data>
+    <data name="PurposeDescription" xml:space="preserve">
+        <value>Este archivo contiene una representación empaquetada de los contenidos del repositorio. Está diseñado para ser fácilmente consumible por sistemas de IA para análisis, revisión de código u otros procesos automatizados.</value>
+    </data>
+    <data name="FileFormat" xml:space="preserve">
+        <value>Formato del Archivo</value>
+    </data>
+    <data name="FileFormatDescription" xml:space="preserve">
+        <value>El contenido se organiza de la siguiente manera: 1. Esta sección de resumen 2. Una sección de "Hotspots" que identifica archivos clave por métricas 3. Una sección de "Análisis de Inestabilidad" que proporciona información arquitectónica 4. Un árbol de la estructura de directorios con enlaces clicables a cada archivo 5. Múltiples entradas de archivo, cada una de las cuales consta de: a. Un encabezado con la ruta del archivo (## Archivo: ruta/al/archivo) b. El resumen del "Repo Map" (API pública e importaciones) c. El contenido completo del archivo en un bloque de código</value>
+    </data>
+    <data name="UsageGuidelines" xml:space="preserve">
+        <value>Pautas de Uso</value>
+    </data>
+    <data name="UsageGuidelinesDescription" xml:space="preserve">
+        <value>- Este archivo debe ser tratado como de solo lectura. Cualquier cambio debe realizarse en los archivos originales del repositorio, no en esta versión empaquetada. - Al procesar este archivo, use la ruta del archivo para distinguir entre los diferentes archivos del repositorio. - Tenga en cuenta que este archivo puede contener información sensible. Manéjelo con el mismo nivel de seguridad que manejaría el repositorio original.</value>
+    </data>
+    <data name="Notes" xml:space="preserve">
+        <value>Notas</value>
+    </data>
+    <data name="NotesDescription" xml:space="preserve">
+        <value>- Algunos archivos pueden haber sido excluidos según la configuración de ContextWeaver en `.contextweaver.json` o el `appsettings.json` por defecto. - Los archivos binarios no se incluyen en esta representación empaquetada. - Los archivos se ordenan alfabéticamente por su ruta completa para una ordenación consistente.</value>
+    </data>
+    <data name="HotspotsAnalysisTitle" xml:space="preserve">
+        <value>🔥 Análisis de Hotspots</value>
+    </data>
+    <data name="HotspotsTop5ByImports" xml:space="preserve">
+        <value>5 Principales Archivos por Número de Importaciones</value>
+    </data>
+    <data name="HotspotsTop5ByLOC" xml:space="preserve">
+        <value>5 Principales Archivos por Líneas de Código (LOC)</value>
+    </data>
+    <data name="InstabilityAnalysisTitle" xml:space="preserve">
+        <value>📊 Análisis de Inestabilidad</value>
+    </data>
+    <data name="InstabilityIntro" xml:space="preserve">
+        <value>Esta sección estima la métrica de Inestabilidad (I) para cada módulo de nivel superior (carpeta/proyecto) basándose en sus dependencias (importaciones).</value>
+    </data>
+    <data name="InstabilityFormula" xml:space="preserve">
+        <value>`I = Ce / (Ca + Ce)`</value>
+    </data>
+    <data name="InstabilityCe" xml:space="preserve">
+        <value>- `Ce` (Eferente): Cuántos otros módulos usa este módulo (apunta hacia afuera).</value>
+    </data>
+    <data name="InstabilityCa" xml:space="preserve">
+        <value>- `Ca` (Aferente): Cuántos otros módulos dependen de este módulo (apunta hacia adentro).</value>
+    </data>
+    <data name="InstabilityModuleOverview" xml:space="preserve">
+        <value>Resumen de Inestabilidad del Módulo:</value>
+    </data>
+    <data name="InstabilityInterpretationGuide" xml:space="preserve">
+        <value>Guía de Interpretación:</value>
+    </data>
+    <data name="InstabilityGuideStable" xml:space="preserve">
+        <value>- `I ≈ 0`: Muy estable (muchos dependen de él; depende poco de otros). A menudo son contratos/interfaces principales.</value>
+    </data>
+    <data name="InstabilityGuideUnstable" xml:space="preserve">
+        <value>- `I ≈ 1`: Muy inestable (depende de muchos; pocos o ninguno dependen de él). A menudo son implementaciones concretas como UI/adaptadores.</value>
+    </data>
+    <data name="InstabilityGuideIntermediate" xml:space="preserve">
+        <value>- `I ≈ 0.5`: Estabilidad intermedia.</value>
+    </data>
+    <data name="InstabilityGuideIdeal" xml:space="preserve">
+        <value>Idealmente, los módulos estables deben ser abstractos y los inestables concretos. Evite módulos abstractos muy inestables o módulos concretos muy estables.</value>
+    </data>
+    <data name="InstabilityDescStable" xml:space="preserve">
+        <value>Muy Estable / Core</value>
+    </data>
+    <data name="InstabilityDescUnstable" xml:space="preserve">
+        <value>Muy Inestable / Concreto</value>
+    </data>
+    <data name="InstabilityDescIntermediate" xml:space="preserve">
+        <value>Estabilidad Intermedia</value>
+    </data>
+    <data name="DirectoryStructure" xml:space="preserve">
+        <value>Estructura de Directorios</value>
+    </data>
+    <data name="Files" xml:space="preserve">
+        <value>Archivos</value>
+    </data>
+    <data name="FileHeader" xml:space="preserve">
+        <value>Archivo: {0}</value>
+    </data>
+    <data name="RepoMapTitle" xml:space="preserve">
+        <value>Mapa del Repositorio: Extracción de Firmas Públicas e Imports</value>
+    </data>
+    <data name="PublicAPI" xml:space="preserve">
+        <value>API Pública:</value>
+    </data>
+    <data name="Imports" xml:space="preserve">
+        <value>Imports:</value>
+    </data>
+    <data name="Metrics" xml:space="preserve">
+        <value>Métricas</value>
+    </data>
+    <data name="LinesOfCode" xml:space="preserve">
+        <value>Líneas de Código (LOC):</value>
+    </data>
+    <data name="SourceCode" xml:space="preserve">
+        <value>Código Fuente</value>
+    </data>
+    <data name="InstabilityTableHeader" xml:space="preserve">
+        <value>| Módulo | Ca (Eferente) | Ce (Aferente) | Inestabilidad (I) | Descripción |</value>
+    </data>
+    <data name="InstabilityTableSeparator" xml:space="preserve">
+        <value>|---|---|---|---|---|</value>
+    </data>
+</root>
