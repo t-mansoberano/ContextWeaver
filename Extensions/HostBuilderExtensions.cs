@@ -24,11 +24,6 @@ public static class HostBuilderExtensions
         Host.CreateDefaultBuilder(args)
             .ConfigureServices((hostContext, services) =>
             {
-                // BUENA PRÁCTICA: Options Pattern.
-                // Vincula la sección "AnalysisSettings" del appsettings.json a la clase AnalysisSettings.
-                // Esto proporciona seguridad de tipos y facilita la configuración.
-                services.Configure<AnalysisSettings>(hostContext.Configuration.GetSection("AnalysisSettings"));
-
                 // PRINCIPIO DE DISEÑO: Inyección de Dependencias (DI).
                 services.AddSingleton<SettingsProvider>();
                 services.AddSingleton<InstabilityCalculator>();              
