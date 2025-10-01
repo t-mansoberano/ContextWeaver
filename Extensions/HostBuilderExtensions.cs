@@ -1,5 +1,4 @@
 ﻿using ContextWeaver.Analyzers;
-using ContextWeaver.Core;
 using ContextWeaver.Interfaces;
 using ContextWeaver.Reporters;
 using ContextWeaver.Services;
@@ -16,17 +15,18 @@ namespace ContextWeaver.Extensions;
 public static class HostBuilderExtensions
 {
     /// <summary>
-    /// ARQUITECTURA: Composition Root (Raíz de Composición) - Parte de la configuración.
-    /// Este método centraliza la configuración de servicios de la aplicación.
-    /// Es el ÚNICO LUGAR donde las implementaciones concretas se "conectan" a sus abstracciones.
+    ///     ARQUITECTURA: Composition Root (Raíz de Composición) - Parte de la configuración.
+    ///     Este método centraliza la configuración de servicios de la aplicación.
+    ///     Es el ÚNICO LUGAR donde las implementaciones concretas se "conectan" a sus abstracciones.
     /// </summary>
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
+    public static IHostBuilder CreateHostBuilder(string[] args)
+    {
+        return Host.CreateDefaultBuilder(args)
             .ConfigureServices((hostContext, services) =>
             {
                 // PRINCIPIO DE DISEÑO: Inyección de Dependencias (DI).
                 services.AddSingleton<SettingsProvider>();
-                services.AddSingleton<InstabilityCalculator>();              
+                services.AddSingleton<InstabilityCalculator>();
                 // Registramos el servicio principal de la aplicación.
                 services.AddSingleton<CodeAnalyzerService>();
 
@@ -43,4 +43,5 @@ public static class HostBuilderExtensions
                 // implementación de IReportGenerator aquí, sin alterar CodeAnalyzerService.
                 services.AddSingleton<IReportGenerator, MarkdownReportGenerator>();
             });
+    }
 }

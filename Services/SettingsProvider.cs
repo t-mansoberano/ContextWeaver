@@ -1,13 +1,14 @@
-﻿using ContextWeaver.Core;
+﻿using System.Text.Json;
+using ContextWeaver.Core;
 using Microsoft.Extensions.Configuration;
-using System.Text.Json; // <-- Añadir este using
+
+// <-- Añadir este using
 
 namespace ContextWeaver.Services;
 
 public class SettingsProvider
 {
     // El constructor ahora puede estar vacío, ya no depende de IOptions
-    public SettingsProvider() { }
 
     public AnalysisSettings LoadSettingsFor(DirectoryInfo directory)
     {
@@ -25,45 +26,48 @@ public class SettingsProvider
 
                 if (!section.Exists())
                 {
-                    Console.Error.WriteLine("⚠️ La sección 'AnalysisSettings' no existe. Se usará la configuración por defecto.");
+                    Console.Error.WriteLine(
+                        "⚠️ La sección 'AnalysisSettings' no existe. Se usará la configuración por defecto.");
                     return DefaultSettings.Get();
                 }
 
                 var localSettings = section.Get<AnalysisSettings>();
-                if (localSettings != null && (localSettings.IncludedExtensions?.Any() == true || localSettings.ExcludePatterns?.Any() == true))
+                if (localSettings != null && (localSettings.IncludedExtensions?.Any() == true ||
+                                              localSettings.ExcludePatterns?.Any() == true))
                 {
                     Console.WriteLine("-> Configuración local aplicada exitosamente.");
                     return localSettings;
                 }
 
-                Console.WriteLine("-> La configuración local está vacía o incompleta. Se usará la configuración por defecto.");
+                Console.WriteLine(
+                    "-> La configuración local está vacía o incompleta. Se usará la configuración por defecto.");
                 return DefaultSettings.Get();
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine($"⚠️ Error al leer '{localConfigPath}': {ex.Message}. Se usará la configuración por defecto.");
+                Console.Error.WriteLine(
+                    $"⚠️ Error al leer '{localConfigPath}': {ex.Message}. Se usará la configuración por defecto.");
                 return DefaultSettings.Get();
             }
         }
-        else
-        {
-            // --- NUEVA LÓGICA: El archivo NO existe, así que lo creamos ---
-            Console.WriteLine("✅ No se encontró '.contextweaver.json'. Se creará uno nuevo con valores por defecto.");
-            var defaultSettings = DefaultSettings.Get();
-            
-            try
-            {
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                var jsonString = JsonSerializer.Serialize(new { AnalysisSettings = defaultSettings }, options);
-                File.WriteAllText(localConfigPath, jsonString);
-                Console.WriteLine($"-> Archivo de configuración creado en: {localConfigPath}");
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"⚠️ No se pudo crear el archivo de configuración: {ex.Message}. Se continuará con la configuración por defecto en memoria.");
-            }
 
-            return defaultSettings;
+        // --- NUEVA LÓGICA: El archivo NO existe, así que lo creamos ---
+        Console.WriteLine("✅ No se encontró '.contextweaver.json'. Se creará uno nuevo con valores por defecto.");
+        var defaultSettings = DefaultSettings.Get();
+
+        try
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var jsonString = JsonSerializer.Serialize(new { AnalysisSettings = defaultSettings }, options);
+            File.WriteAllText(localConfigPath, jsonString);
+            Console.WriteLine($"-> Archivo de configuración creado en: {localConfigPath}");
         }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine(
+                $"⚠️ No se pudo crear el archivo de configuración: {ex.Message}. Se continuará con la configuración por defecto en memoria.");
+        }
+
+        return defaultSettings;
     }
 }

@@ -1,13 +1,12 @@
 ﻿namespace ContextWeaver.Core;
 
 /// <summary>
-/// BUENA PRÁCTICA: Data Transfer Object (DTO).
-/// Esta clase es un POCO (Plain Old CLR Object) cuya única responsabilidad es transportar datos
-/// entre las capas de la aplicación (desde los analizadores hasta los generadores de reportes).
-///
-/// PRINCIPIO DE DISEÑO: ALTA COHESIÓN.
-/// La clase solo contiene datos relacionados con el resultado de un análisis de archivo.
-/// No tiene lógica de negocio, lo que la hace cohesiva y fácil de entender.
+///     BUENA PRÁCTICA: Data Transfer Object (DTO).
+///     Esta clase es un POCO (Plain Old CLR Object) cuya única responsabilidad es transportar datos
+///     entre las capas de la aplicación (desde los analizadores hasta los generadores de reportes).
+///     PRINCIPIO DE DISEÑO: ALTA COHESIÓN.
+///     La clase solo contiene datos relacionados con el resultado de un análisis de archivo.
+///     No tiene lógica de negocio, lo que la hace cohesiva y fácil de entender.
 /// </summary>
 public class FileAnalysisResult
 {
@@ -16,11 +15,11 @@ public class FileAnalysisResult
     public string CodeContent { get; set; } = string.Empty;
     public string Language { get; set; } = "plaintext";
     public Dictionary<string, object> Metrics { get; } = new();
-    
+
     // Nueva propiedad para los Usings, para tipado fuerte y fácil acceso.
-    public List<string> Usings { get; set; } = new();     
+    public List<string> Usings { get; set; } = new();
 
     // ✅ NUEVA PROPIEDAD: Para almacenar las dependencias de clase.
     // Guardaremos las relaciones en formato "ClaseOrigen -> ClaseDestino".
-    public List<string> ClassDependencies { get; set; } = new();    
+    public List<string> ClassDependencies { get; set; } = new();
 }

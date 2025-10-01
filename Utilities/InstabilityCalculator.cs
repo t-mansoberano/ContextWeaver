@@ -1,11 +1,11 @@
 ﻿using ContextWeaver.Core;
-using System.Text.RegularExpressions;
 
 namespace ContextWeaver.Utilities;
 
 public class InstabilityCalculator
 {
-    public Dictionary<string, (int Ca, int Ce, double Instability)> Calculate(string rootDirectoryName, List<FileAnalysisResult> results)
+    public Dictionary<string, (int Ca, int Ce, double Instability)> Calculate(string rootDirectoryName,
+        List<FileAnalysisResult> results)
     {
         var moduleDependencies = new Dictionary<string, HashSet<string>>();
         var moduleNames = new HashSet<string>();
@@ -18,9 +18,7 @@ public class InstabilityCalculator
             moduleNames.Add(currentModule);
 
             if (!moduleDependencies.ContainsKey(currentModule))
-            {
                 moduleDependencies[currentModule] = new HashSet<string>();
-            }
 
             foreach (var usedNamespace in result.Usings)
             {
@@ -31,9 +29,7 @@ public class InstabilityCalculator
                     usedNamespace.Contains($".{m}.", StringComparison.OrdinalIgnoreCase));
 
                 if (matchingModule != null && matchingModule != currentModule)
-                {
                     moduleDependencies[currentModule].Add(matchingModule);
-                }
             }
         }
 
@@ -44,20 +40,18 @@ public class InstabilityCalculator
         {
             moduleMetrics[module] = (moduleMetrics[module].Ca, dependencies.Count);
             foreach (var dependentModule in dependencies)
-            {
                 if (moduleMetrics.ContainsKey(dependentModule))
-                {
-                    moduleMetrics[dependentModule] = (moduleMetrics[dependentModule].Ca + 1, moduleMetrics[dependentModule].Ce);
-                }
-            }
+                    moduleMetrics[dependentModule] = (moduleMetrics[dependentModule].Ca + 1,
+                        moduleMetrics[dependentModule].Ce);
         }
 
         // 3. Calcular Inestabilidad (I)
         return moduleMetrics.ToDictionary(
             kvp => kvp.Key,
-            kvp => {
+            kvp =>
+            {
                 var (ca, ce) = kvp.Value;
-                double instability = (ca + ce == 0) ? 0.0 : (double)ce / (ca + ce);
+                var instability = ca + ce == 0 ? 0.0 : (double)ce / (ca + ce);
                 return (ca, ce, instability);
             });
     }

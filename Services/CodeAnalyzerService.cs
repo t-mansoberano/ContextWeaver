@@ -8,8 +8,8 @@ public class CodeAnalyzerService
 {
     private readonly IEnumerable<IFileAnalyzer> _analyzers;
     private readonly IEnumerable<IReportGenerator> _generators;
-    private readonly SettingsProvider _settingsProvider;
     private readonly InstabilityCalculator _instabilityCalculator;
+    private readonly SettingsProvider _settingsProvider;
 
     public CodeAnalyzerService(
         SettingsProvider settingsProvider,
@@ -37,7 +37,8 @@ public class CodeAnalyzerService
 
         // 2. Encontrar y filtrar archivos
         var allFiles = directory.GetFiles("*.*", SearchOption.AllDirectories)
-            .Where(f => !settings.ExcludePatterns.Any(p => f.FullName.Contains(Path.DirectorySeparatorChar + p + Path.DirectorySeparatorChar)))
+            .Where(f => !settings.ExcludePatterns.Any(p =>
+                f.FullName.Contains(Path.DirectorySeparatorChar + p + Path.DirectorySeparatorChar)))
             .Where(f => settings.IncludedExtensions.Contains(f.Extension.ToLowerInvariant()))
             .ToList();
 
@@ -49,18 +50,19 @@ public class CodeAnalyzerService
             if (analyzer != null)
             {
                 var result = await analyzer.AnalyzeAsync(file);
-                result.RelativePath = file.FullName.Replace(directory.FullName, "").Replace(Path.DirectorySeparatorChar, '/').TrimStart('/');
+                result.RelativePath = file.FullName.Replace(directory.FullName, "")
+                    .Replace(Path.DirectorySeparatorChar, '/').TrimStart('/');
                 analysisResults.Add(result);
             }
         }
-        
+
         // 4. Calcular inestabilidad (responsabilidad delegada)
         var instabilityMetrics = _instabilityCalculator.Calculate(directory.Name, analysisResults);
 
         // 5. Generar y escribir el reporte
-        var reportContent = generator.Generate(directory, analysisResults, instabilityMetrics); 
+        var reportContent = generator.Generate(directory, analysisResults, instabilityMetrics);
         await File.WriteAllTextAsync(outputFile.FullName, reportContent);
-        
+
         Console.WriteLine($"✅ Reporte en formato '{format}' generado exitosamente en: {outputFile.FullName}");
     }
 }

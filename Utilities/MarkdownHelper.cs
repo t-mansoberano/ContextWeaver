@@ -3,9 +3,9 @@
 namespace ContextWeaver.Utilities;
 
 /// <summary>
-/// BUENA PRÁCTICA: Clase de Utilidad Estática.
-/// Encapsula una lógica muy específica y reutilizable: la creación de anclas de Markdown.
-/// Esto mantiene la lógica de formato fuera del generador de reportes, siguiendo el SRP.
+///     BUENA PRÁCTICA: Clase de Utilidad Estática.
+///     Encapsula una lógica muy específica y reutilizable: la creación de anclas de Markdown.
+///     Esto mantiene la lógica de formato fuera del generador de reportes, siguiendo el SRP.
 /// </summary>
 public static class MarkdownHelper
 {

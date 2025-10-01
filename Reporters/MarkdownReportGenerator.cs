@@ -6,17 +6,17 @@ using ContextWeaver.Utilities;
 namespace ContextWeaver.Reporters;
 
 /// <summary>
-/// PATRÓN DE DISEÑO: Concrete Strategy (Estrategia Concreta).
-/// Implementación de IReportGenerator que sabe cómo construir un reporte en formato Markdown.
-///
-/// PRINCIPIO DE DISEÑO: ALTA COHESIÓN y SRP.
-/// Toda la lógica de formato de Markdown reside exclusivamente en esta clase.
+///     PATRÓN DE DISEÑO: Concrete Strategy (Estrategia Concreta).
+///     Implementación de IReportGenerator que sabe cómo construir un reporte en formato Markdown.
+///     PRINCIPIO DE DISEÑO: ALTA COHESIÓN y SRP.
+///     Toda la lógica de formato de Markdown reside exclusivamente en esta clase.
 /// </summary>
 public class MarkdownReportGenerator : IReportGenerator
 {
     public string Format => "markdown";
 
-    public string Generate(DirectoryInfo directory, List<FileAnalysisResult> results, Dictionary<string, (int Ca, int Ce, double Instability)> instabilityMetrics)
+    public string Generate(DirectoryInfo directory, List<FileAnalysisResult> results,
+        Dictionary<string, (int Ca, int Ce, double Instability)> instabilityMetrics)
     {
         var reportBuilder = new StringBuilder();
         var sortedResults = results.OrderBy(r => r.RelativePath).ToList();
@@ -74,7 +74,7 @@ public class MarkdownReportGenerator : IReportGenerator
     }
 
     /// <summary>
-    /// Genera la sección de Hotspots, mostrando los top 5 archivos por LOC y por número de imports.
+    ///     Genera la sección de Hotspots, mostrando los top 5 archivos por LOC y por número de imports.
     /// </summary>
     private string GenerateHotspots(List<FileAnalysisResult> results)
     {
@@ -91,12 +91,14 @@ public class MarkdownReportGenerator : IReportGenerator
             var anchor = MarkdownHelper.CreateAnchor(headerText);
             hotspotsBuilder.AppendLine($"* **({result.LinesOfCode} LOC)** - [`{result.RelativePath}`](#{anchor})");
         }
+
         hotspotsBuilder.AppendLine();
 
         // --- Top 5 por Número de Imports ---
         hotspotsBuilder.AppendLine("## 5 Principales Archivos por Número de Importaciones");
         var topByImports = results
-            .Select(r => new {
+            .Select(r => new
+            {
                 Result = r,
                 ImportCount = r.Usings.Count // <-- Acceso directo a la propiedad Usings.Count
             })
@@ -108,22 +110,27 @@ public class MarkdownReportGenerator : IReportGenerator
         {
             var headerText = $"File: {item.Result.RelativePath}";
             var anchor = MarkdownHelper.CreateAnchor(headerText);
-            hotspotsBuilder.AppendLine($"* **({item.ImportCount} Imports)** - [`{item.Result.RelativePath}`](#{anchor})");
+            hotspotsBuilder.AppendLine(
+                $"* **({item.ImportCount} Imports)** - [`{item.Result.RelativePath}`](#{anchor})");
         }
+
         hotspotsBuilder.AppendLine();
 
         return hotspotsBuilder.ToString();
     }
-    
-    private string GenerateInstabilityReport(Dictionary<string, (int Ca, int Ce, double Instability)> instabilityMetrics)
+
+    private string GenerateInstabilityReport(
+        Dictionary<string, (int Ca, int Ce, double Instability)> instabilityMetrics)
     {
         var reportBuilder = new StringBuilder();
         reportBuilder.AppendLine("# 📊 Análisis de Inestabilidad");
         reportBuilder.AppendLine();
-        reportBuilder.AppendLine("Esta sección estima la métrica de Inestabilidad (I) para cada módulo de nivel superior (carpeta/proyecto) basándose en sus dependencias (importaciones).");
+        reportBuilder.AppendLine(
+            "Esta sección estima la métrica de Inestabilidad (I) para cada módulo de nivel superior (carpeta/proyecto) basándose en sus dependencias (importaciones).");
         reportBuilder.AppendLine("`I = Ce / (Ca + Ce)`");
         reportBuilder.AppendLine("- `Ce` (Eferente): Cuántos otros módulos usa este módulo (apunta hacia afuera).");
-        reportBuilder.AppendLine("- `Ca` (Aferente): Cuántos otros módulos dependen de este módulo (apunta hacia adentro).");
+        reportBuilder.AppendLine(
+            "- `Ca` (Aferente): Cuántos otros módulos dependen de este módulo (apunta hacia adentro).");
         reportBuilder.AppendLine();
         reportBuilder.AppendLine("## Resumen de Inestabilidad del Módulo:");
         reportBuilder.AppendLine();
@@ -137,20 +144,24 @@ public class MarkdownReportGenerator : IReportGenerator
             var description = GetInstabilityDescription(instability);
             reportBuilder.AppendLine($"| `{module}` | {ca} | {ce} | {instability:F2} | {description} |");
         }
+
         reportBuilder.AppendLine();
-        
+
         reportBuilder.AppendLine("## Guía de Interpretación:");
-        reportBuilder.AppendLine("- `I ≈ 0`: Muy estable (muchos dependen de él; depende poco de otros). A menudo son contratos/interfaces principales.");
-        reportBuilder.AppendLine("- `I ≈ 1`: Muy inestable (depende de muchos; pocos o ninguno dependen de él). A menudo son implementaciones concretas como UI/adaptadores.");
+        reportBuilder.AppendLine(
+            "- `I ≈ 0`: Muy estable (muchos dependen de él; depende poco de otros). A menudo son contratos/interfaces principales.");
+        reportBuilder.AppendLine(
+            "- `I ≈ 1`: Muy inestable (depende de muchos; pocos o ninguno dependen de él). A menudo son implementaciones concretas como UI/adaptadores.");
         reportBuilder.AppendLine("- `I ≈ 0.5`: Estabilidad intermedia.");
-        reportBuilder.AppendLine("Idealmente, los módulos estables deben ser abstractos y los inestables concretos. Evite módulos abstractos muy inestables o módulos concretos muy estables.");
+        reportBuilder.AppendLine(
+            "Idealmente, los módulos estables deben ser abstractos y los inestables concretos. Evite módulos abstractos muy inestables o módulos concretos muy estables.");
         reportBuilder.AppendLine();
 
         return reportBuilder.ToString();
     }
-    
-/// <summary>
-    /// ✅ VERSIÓN CORREGIDA: Genera un gráfico más limpio y con sintaxis correcta.
+
+    /// <summary>
+    ///     ✅ VERSIÓN CORREGIDA: Genera un gráfico más limpio y con sintaxis correcta.
     /// </summary>
     private string GenerateDependencyGraph(List<FileAnalysisResult> results)
     {
@@ -162,37 +173,27 @@ public class MarkdownReportGenerator : IReportGenerator
         {
             // ✅ FIX: Usar el nombre del directorio para agrupar, es más robusto.
             var moduleName = Path.GetDirectoryName(result.RelativePath)?.Replace('\\', '/').Split('/').LastOrDefault();
-            if (string.IsNullOrEmpty(moduleName))
-            {
-                moduleName = "Core"; // Para archivos en la raíz
-            }
+            if (string.IsNullOrEmpty(moduleName)) moduleName = "Core"; // Para archivos en la raíz
 
-            if (!modules.ContainsKey(moduleName))
-            {
-                modules[moduleName] = new HashSet<string>();
-            }
+            if (!modules.ContainsKey(moduleName)) modules[moduleName] = new HashSet<string>();
 
             if (result.ClassDependencies != null)
-            {
                 foreach (var dependency in result.ClassDependencies)
                 {
                     // Formato esperado: "Source -.-> Target" o "Source --> Target"
                     var separator = dependency.Contains("-.->") ? "-.->" : "-->";
                     var parts = dependency.Split(new[] { separator }, StringSplitOptions.TrimEntries);
-                    if (parts.Length != 2 || string.IsNullOrWhiteSpace(parts[0]) || string.IsNullOrWhiteSpace(parts[1]))
-                    {
-                        continue; // ✅ FIX: Ignorar enlaces malformados o vacíos
-                    }
+                    if (parts.Length != 2 || string.IsNullOrWhiteSpace(parts[0]) ||
+                        string.IsNullOrWhiteSpace(parts[1])) continue; // ✅ FIX: Ignorar enlaces malformados o vacíos
 
                     var source = parts[0];
                     var target = parts[1];
 
                     allDependencies.Add(dependency);
                     modules[moduleName].Add(source);
-                    
-                    if(target.StartsWith("I") && char.IsUpper(target[1])) interfaces.Add(target);
+
+                    if (target.StartsWith("I") && char.IsUpper(target[1])) interfaces.Add(target);
                 }
-            }
         }
 
         if (allDependencies.Count == 0) return string.Empty;
@@ -201,39 +202,32 @@ public class MarkdownReportGenerator : IReportGenerator
         // ... (el resto del método para construir el string de mermaid se mantiene igual) ...
         graphBuilder.AppendLine("# 📈 Gráfico de Dependencias de Clases");
         graphBuilder.AppendLine();
-        graphBuilder.AppendLine("Este gráfico visualiza las relaciones jerárquicas (línea punteada) y de colaboración (línea sólida) entre las clases del proyecto. Renderizado con Mermaid.js.");
+        graphBuilder.AppendLine(
+            "Este gráfico visualiza las relaciones jerárquicas (línea punteada) y de colaboración (línea sólida) entre las clases del proyecto. Renderizado con Mermaid.js.");
         graphBuilder.AppendLine();
         graphBuilder.AppendLine("```mermaid");
         graphBuilder.AppendLine("graph TD;");
         graphBuilder.AppendLine();
 
         foreach (var module in modules.OrderBy(m => m.Key))
-        {
             if (module.Value.Any())
             {
                 graphBuilder.AppendLine($"  subgraph {module.Key}");
-                foreach (var className in module.Value.OrderBy(n => n))
-                {
-                    graphBuilder.AppendLine($"    {className}");
-                }
+                foreach (var className in module.Value.OrderBy(n => n)) graphBuilder.AppendLine($"    {className}");
                 graphBuilder.AppendLine("  end");
                 graphBuilder.AppendLine();
             }
-        }
-        
-        foreach (var dependency in allDependencies.OrderBy(d => d))
-        {
-            graphBuilder.AppendLine($"  {dependency}");
-        }
+
+        foreach (var dependency in allDependencies.OrderBy(d => d)) graphBuilder.AppendLine($"  {dependency}");
         graphBuilder.AppendLine();
 
         if (interfaces.Any())
         {
-             graphBuilder.AppendLine("  %% Estilos");
-             graphBuilder.AppendLine("  classDef interface fill:#ccf,stroke:#333,stroke-width:2px");
-             graphBuilder.AppendLine($"  class {string.Join(",", interfaces)} interface");
+            graphBuilder.AppendLine("  %% Estilos");
+            graphBuilder.AppendLine("  classDef interface fill:#ccf,stroke:#333,stroke-width:2px");
+            graphBuilder.AppendLine($"  class {string.Join(",", interfaces)} interface");
         }
-        
+
         graphBuilder.AppendLine("```");
         graphBuilder.AppendLine();
 
@@ -241,13 +235,66 @@ public class MarkdownReportGenerator : IReportGenerator
     }
 
     /// <summary>
-    /// Proporciona una descripción textual de la inestabilidad.
+    ///     Proporciona una descripción textual de la inestabilidad.
     /// </summary>
     private string GetInstabilityDescription(double instability)
     {
         if (instability <= 0.2) return "Muy estable / Core";
         if (instability >= 0.8) return "Muy inestable / Concreto";
         return "Estabilidad intermedia";
+    }
+
+    /// <summary>
+    ///     Genera el contenido de todos los archivos con sus respectivas métricas y mapa de repositorio.
+    /// </summary>
+    private string GenerateFileContent(List<FileAnalysisResult> results)
+    {
+        var contentBuilder = new StringBuilder();
+        contentBuilder.AppendLine("# Archivos");
+        contentBuilder.AppendLine();
+
+        foreach (var result in results)
+        {
+            contentBuilder.AppendLine($"## File: {result.RelativePath}");
+            contentBuilder.AppendLine();
+
+            // --- NUEVA SECCIÓN DE REPO MAP ---
+            if (result.Metrics.TryGetValue("PublicApiSignatures", out var publicApiObj) &&
+                publicApiObj is List<string> publicApi)
+            {
+                contentBuilder.AppendLine("### Repo Map: Extraer solo firmas públicas y imports de cada archivo");
+                contentBuilder.AppendLine("#### API Publica:");
+                foreach (var signature in publicApi) contentBuilder.AppendLine(signature);
+                contentBuilder.AppendLine(); // Línea en blanco para separación
+            }
+
+            if (result.Metrics.TryGetValue("Usings", out var usingsObj) && usingsObj is List<string> usings)
+            {
+                contentBuilder.AppendLine("#### Imports:");
+                foreach (var singleUsing in usings) contentBuilder.AppendLine($"- {singleUsing}");
+                contentBuilder.AppendLine(); // Línea en blanco para separación
+            }
+            // --- FIN NUEVA SECCIÓN ---
+
+            // Información de métricas existente
+            contentBuilder.AppendLine("#### Métricas");
+            contentBuilder.AppendLine($"* **Lineas de Código (LOC):** {result.LinesOfCode}");
+            // Muestra otras métricas, excluyendo las que ya tratamos explícitamente como "Repo Map"
+            foreach (var metric in result.Metrics.Where(m => m.Key != "PublicApiSignatures" && m.Key != "Usings"))
+                contentBuilder.AppendLine($"* **{metric.Key}:** {metric.Value}");
+            contentBuilder.AppendLine();
+
+            // Sección de Código Fuente
+            contentBuilder.AppendLine("#### Source Code");
+            // Nota: Aquí se muestra el código completo, podrías añadir la lógica para "Fuente: líneas 1-X" si es necesario
+            // Por ahora, el "CodeContent" ya tiene todo el código y las "LinesOfCode" te dan el rango.
+            contentBuilder.AppendLine("```" + result.Language);
+            contentBuilder.AppendLine(result.CodeContent.Trim());
+            contentBuilder.AppendLine("```");
+            contentBuilder.AppendLine();
+        }
+
+        return contentBuilder.ToString();
     }
 
     #region Directory Tree Generation
@@ -260,7 +307,7 @@ public class MarkdownReportGenerator : IReportGenerator
     }
 
     /// <summary>
-    /// Genera la sección de estructura de directorios con un formato de árbol avanzado.
+    ///     Genera la sección de estructura de directorios con un formato de árbol avanzado.
     /// </summary>
     private string GenerateDirectoryTree(List<FileAnalysisResult> results, string rootName)
     {
@@ -286,23 +333,18 @@ public class MarkdownReportGenerator : IReportGenerator
             var currentNode = root;
             var pathParts = result.RelativePath.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
-            for (int i = 0; i < pathParts.Length; i++)
+            for (var i = 0; i < pathParts.Length; i++)
             {
                 var part = pathParts[i];
-                if (!currentNode.Children.ContainsKey(part))
-                {
-                    currentNode.Children[part] = new TreeNode { Name = part };
-                }
+                if (!currentNode.Children.ContainsKey(part)) currentNode.Children[part] = new TreeNode { Name = part };
                 currentNode = currentNode.Children[part];
-                if (i == pathParts.Length - 1)
-                {
-                    currentNode.Path = result.RelativePath;
-                }
+                if (i == pathParts.Length - 1) currentNode.Path = result.RelativePath;
             }
         }
+
         return root;
     }
-    
+
     private void AppendDirectoryStructureWithLinks(IEnumerable<TreeNode> nodes, StringBuilder sb, int level)
     {
         var indent = new string(' ', level * 4);
@@ -326,64 +368,4 @@ public class MarkdownReportGenerator : IReportGenerator
     }
 
     #endregion
-
-    /// <summary>
-    /// Genera el contenido de todos los archivos con sus respectivas métricas y mapa de repositorio.
-    /// </summary>
-    private string GenerateFileContent(List<FileAnalysisResult> results)
-    {
-        var contentBuilder = new StringBuilder();
-        contentBuilder.AppendLine("# Archivos");
-        contentBuilder.AppendLine();
-
-        foreach (var result in results)
-        {
-            contentBuilder.AppendLine($"## File: {result.RelativePath}");
-            contentBuilder.AppendLine();
-            
-            // --- NUEVA SECCIÓN DE REPO MAP ---
-            if (result.Metrics.TryGetValue("PublicApiSignatures", out object? publicApiObj) && publicApiObj is List<string> publicApi)
-            {
-                contentBuilder.AppendLine("### Repo Map: Extraer solo firmas públicas y imports de cada archivo");
-                contentBuilder.AppendLine("#### API Publica:");
-                foreach (var signature in publicApi)
-                {
-                    contentBuilder.AppendLine(signature);
-                }
-                contentBuilder.AppendLine(); // Línea en blanco para separación
-            }
-
-            if (result.Metrics.TryGetValue("Usings", out object? usingsObj) && usingsObj is List<string> usings)
-            {
-                contentBuilder.AppendLine("#### Imports:");
-                foreach (var singleUsing in usings)
-                {
-                    contentBuilder.AppendLine($"- {singleUsing}");
-                }
-                contentBuilder.AppendLine(); // Línea en blanco para separación
-            }
-            // --- FIN NUEVA SECCIÓN ---
-
-            // Información de métricas existente
-            contentBuilder.AppendLine("#### Métricas");
-            contentBuilder.AppendLine($"* **Lineas de Código (LOC):** {result.LinesOfCode}");
-            // Muestra otras métricas, excluyendo las que ya tratamos explícitamente como "Repo Map"
-            foreach (var metric in result.Metrics.Where(m => m.Key != "PublicApiSignatures" && m.Key != "Usings"))
-            {
-                contentBuilder.AppendLine($"* **{metric.Key}:** {metric.Value}");
-            }
-            contentBuilder.AppendLine();
-            
-            // Sección de Código Fuente
-            contentBuilder.AppendLine("#### Source Code");
-            // Nota: Aquí se muestra el código completo, podrías añadir la lógica para "Fuente: líneas 1-X" si es necesario
-            // Por ahora, el "CodeContent" ya tiene todo el código y las "LinesOfCode" te dan el rango.
-            contentBuilder.AppendLine("```" + result.Language);
-            contentBuilder.AppendLine(result.CodeContent.Trim());
-            contentBuilder.AppendLine("```");
-            contentBuilder.AppendLine();
-        }
-
-        return contentBuilder.ToString();
-    }
 }

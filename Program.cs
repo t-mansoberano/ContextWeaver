@@ -1,11 +1,7 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration; // Para IConfiguration y GetSection
-using Microsoft.Extensions.Options;       // Para IOptions
-using System.CommandLine;                 // Para la línea de comandos
-using ContextWeaver;
+﻿using System.CommandLine;
 using ContextWeaver.Extensions;
 using ContextWeaver.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 
 // ARQUITECTURA: Top-Level Statements.
@@ -18,22 +14,22 @@ using ContextWeaver.Services;
 var rootCommand = new RootCommand("Herramienta de análisis y extracción de código para LLMs.");
 
 var directoryOption = new Option<DirectoryInfo>(
-    aliases: new[] { "-d", "--directorio" },
+    new[] { "-d", "--directorio" },
     // La función getDefaultValue se ejecuta si el usuario no provee este parámetro.
     // "." es una forma universal de referirse al directorio actual.
-    getDefaultValue: () => new DirectoryInfo("."),
-    description: "El directorio raíz del proyecto a analizar. Por defecto, es el directorio actual.");
+    () => new DirectoryInfo("."),
+    "El directorio raíz del proyecto a analizar. Por defecto, es el directorio actual.");
 // Ya no se necesita la propiedad { IsRequired = true }, porque ahora tiene un valor por defecto.
 
 var outputOption = new Option<FileInfo>(
-    aliases: new[] { "-o", "--output" },
-    getDefaultValue: () => new FileInfo("analysis_report.md"),
-    description: "El archivo de salida para el reporte consolidado.");
+    new[] { "-o", "--output" },
+    () => new FileInfo("analysis_report.md"),
+    "El archivo de salida para el reporte consolidado.");
 
 var formatOption = new Option<string>(
-    aliases: new[] { "-f", "--format" },
-    getDefaultValue: () => "markdown",
-    description: "El formato del reporte de salida.");
+    new[] { "-f", "--format" },
+    () => "markdown",
+    "El formato del reporte de salida.");
 
 rootCommand.AddOption(directoryOption);
 rootCommand.AddOption(outputOption);
