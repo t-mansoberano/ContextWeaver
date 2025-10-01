@@ -27,10 +27,18 @@ public class CSharpFileAnalyzer : IFileAnalyzer
         var content = await File.ReadAllTextAsync(file.FullName);
         var tree = CSharpSyntaxTree.ParseText(content);
         var root = tree.GetRoot();
+        
+        // Se necesita una Compilación para obtener el SemanticModel.
+        var compilation = CSharpCompilation.Create("ContextWeaverAnalysis")
+            .AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
+            .AddSyntaxTrees(tree);
+        var semanticModel = compilation.GetSemanticModel(tree);
 
         var complexity = CSharpMetricsCalculator.CalculateCyclomaticComplexity(content);
         var publicApiSignatures = ExtractPublicApiSignatures(root);
         var usings = ExtractUsingStatements(root); // Los Usings se extraen igual
+        // Extraer las dependencias de clase.
+        var classDependencies = ExtractClassDependencies(root, semanticModel);
 
         return new FileAnalysisResult
         {
@@ -38,6 +46,7 @@ public class CSharpFileAnalyzer : IFileAnalyzer
             CodeContent = content,
             Language = "csharp",
             Usings = usings, // <-- Asignado a la nueva propiedad
+            ClassDependencies = classDependencies, // <-- Asignar el resultado
             Metrics = {
                 { "CyclomaticComplexity", complexity },
                 { "PublicApiSignatures", publicApiSignatures }
@@ -104,5 +113,71 @@ public class CSharpFileAnalyzer : IFileAnalyzer
             .Select(u => u.Name.ToString())
             .OrderBy(u => u)
             .ToList();
+    }
+    
+    
+/// <summary>
+    /// ✅ VERSIÓN CORREGIDA: Extrae dependencias limpias y con sintaxis correcta para 'graph TD'.
+    /// 1. Usa '-->' para uso y '-.->' para herencia.
+    /// 2. Filtra dependencias a tipos del sistema de .NET (ej. List, Exception).
+    /// 3. Evita la creación de enlaces vacíos.
+    /// </summary>
+    private List<string> ExtractClassDependencies(SyntaxNode root, SemanticModel semanticModel)
+    {
+        var dependencies = new HashSet<string>();
+        var declaredTypeSymbols = root.DescendantNodes()
+            .OfType<BaseTypeDeclarationSyntax>()
+            .Select(typeSyntax => semanticModel.GetDeclaredSymbol(typeSyntax))
+            .Where(symbol => symbol != null)
+            .ToList();
+
+        if (!declaredTypeSymbols.Any()) return new List<string>();
+
+        // Crear una lista de los nombres de nuestros propios tipos para poder filtrar.
+        var projectTypeNames = new HashSet<string>(declaredTypeSymbols.Select(s => s.Name));
+
+        foreach (var sourceTypeSymbol in declaredTypeSymbols)
+        {
+            var sourceTypeName = sourceTypeSymbol.Name;
+
+            // --- Análisis de HERENCIA / IMPLEMENTACIÓN ---
+            var baseTypes = sourceTypeSymbol.Interfaces.Concat(new[] { sourceTypeSymbol.BaseType });
+            foreach (var baseTypeSymbol in baseTypes)
+            {
+                if (baseTypeSymbol == null || baseTypeSymbol.SpecialType == SpecialType.System_Object) continue;
+                
+                var targetTypeName = baseTypeSymbol.Name;
+                // ✅ FIX: Solo añadir si el destino es relevante (no es del sistema y no está vacío).
+                var targetNs = baseTypeSymbol.ContainingNamespace?.ToDisplayString() ?? "";
+                if (!string.IsNullOrWhiteSpace(targetTypeName) && !targetNs.StartsWith("System"))
+                {
+                    // ✅ FIX: Usar sintaxis de línea punteada para herencia en 'graph TD'
+                    dependencies.Add($"{sourceTypeName} -.-> {targetTypeName}");
+                }
+            }
+            
+            var typeDeclarationSyntax = sourceTypeSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
+            if (typeDeclarationSyntax == null) continue;
+
+            // --- Análisis de USO / COMPOSICIÓN ---
+            foreach (var typeNode in typeDeclarationSyntax.DescendantNodes().OfType<TypeSyntax>())
+            {
+                var symbolInfo = semanticModel.GetSymbolInfo(typeNode);
+                if (symbolInfo.Symbol is not ITypeSymbol targetTypeSymbol) continue;
+                
+                var targetTypeName = targetTypeSymbol.Name;
+                var targetNs = targetTypeSymbol.ContainingNamespace?.ToDisplayString() ?? "";
+                
+                // ✅ FIX: El filtro principal. Solo nos interesan las dependencias a otros tipos del proyecto.
+                // También se excluyen tipos del sistema y se asegura que el nombre no esté vacío.
+                if (!string.IsNullOrWhiteSpace(targetTypeName) && 
+                    projectTypeNames.Contains(targetTypeName) && 
+                    targetTypeName != sourceTypeName)
+                {
+                    dependencies.Add($"{sourceTypeName} --> {targetTypeName}");
+                }
+            }
+        }
+        return dependencies.ToList();
     }
 }

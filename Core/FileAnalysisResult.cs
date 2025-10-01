@@ -19,4 +19,8 @@ public class FileAnalysisResult
     
     // Nueva propiedad para los Usings, para tipado fuerte y fácil acceso.
     public List<string> Usings { get; set; } = new();     
+
+    // ✅ NUEVA PROPIEDAD: Para almacenar las dependencias de clase.
+    // Guardaremos las relaciones en formato "ClaseOrigen -> ClaseDestino".
+    public List<string> ClassDependencies { get; set; } = new();    
 }

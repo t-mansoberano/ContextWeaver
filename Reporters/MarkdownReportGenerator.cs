@@ -23,7 +23,10 @@ public class MarkdownReportGenerator : IReportGenerator
 
         reportBuilder.Append(GenerateHeader(directory));
         reportBuilder.Append(GenerateHotspots(sortedResults));
-        reportBuilder.Append(GenerateInstabilityReport(instabilityMetrics)); // <-- NUEVA SECCIÓN
+        reportBuilder.Append(GenerateInstabilityReport(instabilityMetrics));
+        // Añadimos el gráfico de dependencias.
+        reportBuilder.Append(GenerateDependencyGraph(sortedResults));
+
         reportBuilder.Append(GenerateDirectoryTree(sortedResults, directory.Name));
         reportBuilder.Append(GenerateFileContent(sortedResults));
 
@@ -144,6 +147,97 @@ public class MarkdownReportGenerator : IReportGenerator
         reportBuilder.AppendLine();
 
         return reportBuilder.ToString();
+    }
+    
+/// <summary>
+    /// ✅ VERSIÓN CORREGIDA: Genera un gráfico más limpio y con sintaxis correcta.
+    /// </summary>
+    private string GenerateDependencyGraph(List<FileAnalysisResult> results)
+    {
+        var allDependencies = new HashSet<string>();
+        var modules = new Dictionary<string, HashSet<string>>();
+        var interfaces = new HashSet<string>();
+
+        foreach (var result in results)
+        {
+            // ✅ FIX: Usar el nombre del directorio para agrupar, es más robusto.
+            var moduleName = Path.GetDirectoryName(result.RelativePath)?.Replace('\\', '/').Split('/').LastOrDefault();
+            if (string.IsNullOrEmpty(moduleName))
+            {
+                moduleName = "Core"; // Para archivos en la raíz
+            }
+
+            if (!modules.ContainsKey(moduleName))
+            {
+                modules[moduleName] = new HashSet<string>();
+            }
+
+            if (result.ClassDependencies != null)
+            {
+                foreach (var dependency in result.ClassDependencies)
+                {
+                    // Formato esperado: "Source -.-> Target" o "Source --> Target"
+                    var separator = dependency.Contains("-.->") ? "-.->" : "-->";
+                    var parts = dependency.Split(new[] { separator }, StringSplitOptions.TrimEntries);
+                    if (parts.Length != 2 || string.IsNullOrWhiteSpace(parts[0]) || string.IsNullOrWhiteSpace(parts[1]))
+                    {
+                        continue; // ✅ FIX: Ignorar enlaces malformados o vacíos
+                    }
+
+                    var source = parts[0];
+                    var target = parts[1];
+
+                    allDependencies.Add(dependency);
+                    modules[moduleName].Add(source);
+                    
+                    if(target.StartsWith("I") && char.IsUpper(target[1])) interfaces.Add(target);
+                }
+            }
+        }
+
+        if (allDependencies.Count == 0) return string.Empty;
+
+        var graphBuilder = new StringBuilder();
+        // ... (el resto del método para construir el string de mermaid se mantiene igual) ...
+        graphBuilder.AppendLine("# 📈 Gráfico de Dependencias de Clases");
+        graphBuilder.AppendLine();
+        graphBuilder.AppendLine("Este gráfico visualiza las relaciones jerárquicas (línea punteada) y de colaboración (línea sólida) entre las clases del proyecto. Renderizado con Mermaid.js.");
+        graphBuilder.AppendLine();
+        graphBuilder.AppendLine("```mermaid");
+        graphBuilder.AppendLine("graph TD;");
+        graphBuilder.AppendLine();
+
+        foreach (var module in modules.OrderBy(m => m.Key))
+        {
+            if (module.Value.Any())
+            {
+                graphBuilder.AppendLine($"  subgraph {module.Key}");
+                foreach (var className in module.Value.OrderBy(n => n))
+                {
+                    graphBuilder.AppendLine($"    {className}");
+                }
+                graphBuilder.AppendLine("  end");
+                graphBuilder.AppendLine();
+            }
+        }
+        
+        foreach (var dependency in allDependencies.OrderBy(d => d))
+        {
+            graphBuilder.AppendLine($"  {dependency}");
+        }
+        graphBuilder.AppendLine();
+
+        if (interfaces.Any())
+        {
+             graphBuilder.AppendLine("  %% Estilos");
+             graphBuilder.AppendLine("  classDef interface fill:#ccf,stroke:#333,stroke-width:2px");
+             graphBuilder.AppendLine($"  class {string.Join(",", interfaces)} interface");
+        }
+        
+        graphBuilder.AppendLine("```");
+        graphBuilder.AppendLine();
+
+        return graphBuilder.ToString();
     }
 
     /// <summary>
